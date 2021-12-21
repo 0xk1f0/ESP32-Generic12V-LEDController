@@ -7,13 +7,32 @@
 #include <credentials.h>
 
 AsyncWebServer server(80);
+String ledStatus = "LED off";
 
-void handleLedOn() {
-    turnOn();
+String liveVals(const String& var){
+  if(var == "USERINPUT"){
+    String interactive = "";
+    interactive += "<button id=\"onoff\" onclick=\"changestatus()\">" + ledStatus + "</button><br>";
+    interactive += "<label>RED</label><br><input type=\"range\" onclick=\"sendColor()\" oninput=\"updateColor()\" value=" + String(lastColorR) + " min=0 max=255 id=\"colorInputR\"></input><br>";
+    interactive += "<label>GREEN</label><br><input type=\"range\" onclick=\"sendColor()\" oninput=\"updateColor()\" value=" + String(lastColorG) + " min=0 max=255 id=\"colorInputG\"></input><br>";
+    interactive += "<label>BLUE</label><br><input type=\"range\" onclick=\"sendColor()\" oninput=\"updateColor()\" value=" + String(lastColorB) + " min=0 max=255 id=\"colorInputB\"></input><br>";
+    //interactive += "<button id=\"apply\" onclick=\"sendColor()\">SEND</button>";
+    return interactive;
+  }
+  return String();
 }
 
-void handleLedOff() {
-    turnOff();
+String handleLed() {
+    if (ledStatus == "LED on") {
+        turnOff();
+        ledStatus = "LED off";
+    } 
+    else if (ledStatus == "LED off") {
+        turnOn();
+        ledStatus = "LED on";
+    }
+    Serial.println(ledStatus);
+    return ledStatus;
 }
 
 void initWifi() {
@@ -29,17 +48,10 @@ void initWifi() {
 
 void initWeb() {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send_P(200, "text/html", ledIndex);
+        request->send_P(200, "text/html", ledIndex, liveVals);
     });
-    server.on("/ledOn", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        handleLedOn();
-        Serial.println("LED ON");
-        request->send(200, "text/plain", "OK");
-    });
-    server.on("/ledOff", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        handleLedOff();
-        Serial.println("LED OFF");
-        request->send(200, "text/plain", "OK");
+    server.on("/ledToggle", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", handleLed());
     });
     server.on("/color", HTTP_GET, [] (AsyncWebServerRequest *request) {
         String inputR;
@@ -59,7 +71,7 @@ void initWeb() {
         Serial.println(inputB);
         writeToStrip(inputR.toInt(), inputG.toInt(), inputB.toInt());
         Serial.println("COLOR CHANGED");
-        request->send(200, "text/plain", "OK");
+        request->send(200, "text/plain", "{\"r\":" + inputR + ", \"g\":" + inputG + ",\"b\":" + inputB + "}");
     });
     server.begin();
 }

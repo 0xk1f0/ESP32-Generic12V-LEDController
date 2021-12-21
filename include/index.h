@@ -2,46 +2,80 @@ const char ledIndex[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html>
     <head>
-        <script>
+        <style>
+            * {
+                background-color: black;
+                
+            }
+
+            p, h1, label {
+                color: white;
+                font-size: 24px;
+            }
+            button, input {
+                background-color: black;
+                color: white;
+                border: solid white;
+                margin: 10px;
+                font-size: 24px;
+            }
+            #mainContainer {
+                border: solid white;
+                border-width: 10px;
+                text-align: center;
+                margin: 0 auto;
+                max-width: 400px;
+            }
+        </style>
+    </head>
+        <body>
+            <section id="mainContainer">
+            <h1>LED CONTROL</h1>
+            %USERINPUT%
+            </section>
+            <script>
             function changestatus() {
-                btn = document.getElementById("onoff");
-                if (btn.innerHTML == "STATUS: ON") {
-                    var xhttp = new XMLHttpRequest();
-                    xhttp.open("GET", "/ledOff", true);
-                    xhttp.send();
-                    btn.innerHTML = "STATUS: OFF";
-                    btn.style.color = "red";
-                } else if (btn.innerHTML == "STATUS: OFF") {
-                    var xhttp = new XMLHttpRequest();
-                    xhttp.open("GET", "/ledOn", true);
-                    xhttp.send();
-                    btn.innerHTML = "STATUS: ON";
-                    btn.style.color = "lime";
-                }
+                var btn = document.getElementById("onoff");
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        btn.innerHTML = this.responseText;
+                    }
+                };
+                xhttp.open("GET", "/ledToggle", true);
+                xhttp.send();
             }
             function sendColor() {
                 var xhttp = new XMLHttpRequest();
-                valR = document.getElementById("colorInputR").value;
-                valG = document.getElementById("colorInputG").value;
-                valB = document.getElementById("colorInputB").value;
-                btn = document.getElementById("onoff");
-                if (btn.innerHTML == "STATUS: ON") {
+                var valR = document.getElementById("colorInputR").value;
+                var valG = document.getElementById("colorInputG").value;
+                var valB = document.getElementById("colorInputB").value;
+                var btn = document.getElementById("onoff");
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        const obj = JSON.parse(this.responseText);
+                        valR = Number(obj.r);
+                        valG = Number(obj.g);
+                        valB = Number(obj.b);
+                    }
+                };
+                if (btn.innerHTML == "LED on") {
                     xhttp.open("GET", "/color?r="+valR+"&g="+valG+"&b="+valB, true);
                     xhttp.send();
                 }
             }
-        </script>
-    </head>
-        <body>
-            <h1>LED CONTROL</h1>
-            <button id="onoff" onclick="changestatus()">STATUS: OFF</button><br>
-            <label>RED</label>
-            <input type="number" value=0 min=0 max=255 id="colorInputR"></input><br>
-            <label>GREEN</label>
-            <input type="number" value=0 min=0 max=255 id="colorInputG"></input><br>
-            <label>BLUE</label>
-            <input type="number" value=0 min=0 max=255 id="colorInputB"></input><br>
-            <button id="apply" onclick="sendColor()">SEND</button>
+            function updateColor() {
+                var valR = toHex(document.getElementById("colorInputR").value);
+                var valG = toHex(document.getElementById("colorInputG").value);
+                var valB = toHex(document.getElementById("colorInputB").value);
+                string = ("#" + valR+valG+valB).toString();
+                document.getElementById("mainContainer").style.borderColor = string;
+            }
+            function toHex(d) {
+                return  ("0"+(Number(d).toString(16))).slice(-2).toUpperCase()
+            }
+            updateColor();
+            </script>
         </body>
 </html>
 )=====";

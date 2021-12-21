@@ -3,8 +3,9 @@
 
 void setup() {
   Serial.begin(9600);
-  initWifi();
   initPins();
+  initWifi();
+  initWeb();
 }
 
 void loop() {
