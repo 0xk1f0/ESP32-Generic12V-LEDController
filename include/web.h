@@ -5,7 +5,6 @@
 #include <AsyncElegantOTA.h>
 #include <index.h>
 #include <rgb.h>
-#include <credentials.h>
 
 AsyncWebServer server(80);
 String ledStatus = "LED off";
@@ -70,7 +69,7 @@ void initWeb() {
         Serial.println(inputR);
         Serial.println(inputG);
         Serial.println(inputB);
-        writeToStrip(inputR.toInt(), inputG.toInt(), inputB.toInt());
+        writeToStrip(inputR.toInt(), inputG.toInt(), inputB.toInt(), ledStatus);
         Serial.println("COLOR CHANGED");
         request->send(200, "text/plain", "{\"r\":" + inputR + ", \"g\":" + inputG + ",\"b\":" + inputB + "}");
     });

@@ -5,25 +5,41 @@ const char ledIndex[] PROGMEM = R"=====(
         <style>
             * {
                 background-color: black;
+                font-family: Arial, Helvetica, sans-serif
             }
 
             p, h1, label {
                 color: white;
                 font-size: 40px;
             }
-            button, input {
+            button {
                 background-color: black;
                 color: white;
                 border: solid white;
                 margin: 10px;
                 font-size: 40px;
+                border-radius: 15px;
+            }
+            input {
+                color: white;
+                margin: 10px;
+                font-size: 40px;
+                border-radius: 15px;
             }
             #mainContainer {
                 border: solid white;
                 border-width: 10px;
                 text-align: center;
                 margin: 0 auto;
-                max-width: 600px;
+                padding: 10px;
+            }
+            @media (pointer:none), (pointer:coarse) {
+                p, h1, label {
+                    font-size: 70px;
+                }
+                button, input {
+                    font-size: 70px;
+                }
             }
         </style>
     </head>
@@ -58,10 +74,8 @@ const char ledIndex[] PROGMEM = R"=====(
                         valB = Number(obj.b);
                     }
                 };
-                if (btn.innerHTML == "LED on") {
-                    xhttp.open("GET", "/color?r="+valR+"&g="+valG+"&b="+valB, true);
-                    xhttp.send();
-                }
+                xhttp.open("GET", "/color?r="+valR+"&g="+valG+"&b="+valB, true);
+                xhttp.send();
             }
             function updateColor() {
                 var valR = toHex(document.getElementById("colorInputR").value);
