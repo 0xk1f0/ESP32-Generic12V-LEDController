@@ -5,26 +5,25 @@ const char ledIndex[] PROGMEM = R"=====(
         <style>
             * {
                 background-color: black;
-                
             }
 
             p, h1, label {
                 color: white;
-                font-size: 24px;
+                font-size: 40px;
             }
             button, input {
                 background-color: black;
                 color: white;
                 border: solid white;
                 margin: 10px;
-                font-size: 24px;
+                font-size: 40px;
             }
             #mainContainer {
                 border: solid white;
                 border-width: 10px;
                 text-align: center;
                 margin: 0 auto;
-                max-width: 400px;
+                max-width: 600px;
             }
         </style>
     </head>
