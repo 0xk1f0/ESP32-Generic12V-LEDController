@@ -2,8 +2,9 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <ESPAsyncWebServer.h>
-#include <AsyncElegantOTA.h>
+#include <Update.h>
 #include <index.h>
+#include <update.h>
 #include <rgb.h>
 
 AsyncWebServer server(80);
@@ -46,6 +47,45 @@ void initWifi() {
     Serial.println(WiFi.localIP());
 }
 
+void handleUpdate(AsyncWebServerRequest *request) {
+  request->send(200, "text/html", updateIndex);
+};
+
+void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
+  if (!index){
+    size_t content_len;  
+    content_len = request->contentLength();
+    // check file names for type
+    int cmd = (filename.indexOf(F(".spiffs.bin")) > -1 ) ? U_SPIFFS : U_FLASH;
+    if (cmd == U_FLASH && !(filename.indexOf(F(".bin")) > -1) ) return; // wrong image for ESP32
+    if (!Update.begin(UPDATE_SIZE_UNKNOWN, cmd)) {
+      Update.printError(Serial);
+    }
+  }
+
+  if (Update.write(data, len) == len) {
+    Serial.println(Update.progress() / 10000 );
+  } else {
+    Update.printError(Serial);
+  }
+
+  if (final) {    
+    if (!Update.end(true)){
+      Update.printError(Serial);
+    } else {
+      String response_message;
+      response_message.reserve(1000);
+      response_message += "<h1>Update done!</h1>";
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/html", response_message);
+      response->addHeader("Refresh", "20");  
+      response->addHeader("Location", "/");
+      request->send(response); 
+      delay(100);
+      ESP.restart();
+    }
+  }
+}
+
 void initWeb() {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send_P(200, "text/html", ledIndex, liveVals);
@@ -73,6 +113,13 @@ void initWeb() {
         Serial.println("COLOR CHANGED");
         request->send(200, "text/plain", "{\"r\":" + inputR + ", \"g\":" + inputG + ",\"b\":" + inputB + "}");
     });
-    AsyncElegantOTA.begin(&server);
+    server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/html", updateIndex);
+        });
+    server.on("/doUpdate", HTTP_POST,
+        [](AsyncWebServerRequest *request) {},
+        [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
+        handleDoUpdate(request, filename, index, data, len, final);}
+    );
     server.begin();
 }
