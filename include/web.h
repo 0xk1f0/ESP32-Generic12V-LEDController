@@ -3,8 +3,7 @@
 #include <WiFiClient.h>
 #include <ESPAsyncWebServer.h>
 #include <Update.h>
-#include <index.h>
-#include <update.h>
+#include <pages.h>
 #include <rgb.h>
 
 AsyncWebServer server(80);
@@ -73,12 +72,7 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size
     if (!Update.end(true)){
       Update.printError(Serial);
     } else {
-      String response_message;
-      response_message.reserve(1000);
-      response_message += "<h1>Update done!</h1>";
-      AsyncWebServerResponse *response = request->beginResponse(200, "text/html", response_message);
-      response->addHeader("Refresh", "20");  
-      response->addHeader("Location", "/");
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/html", updateDoneIndex); 
       request->send(response); 
       delay(100);
       ESP.restart();
