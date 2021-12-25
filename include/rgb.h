@@ -18,7 +18,7 @@ void initPins() {
   analogWrite(BLUE, 0);
 }
 
-void fadeTo(int fromR, int fromG, int fromB, int toR, int toB, int toG, int interval, int steps) {
+void fadeTo(int fromR, int fromG, int fromB, int toR, int toG, int toB, int interval, int steps) {
   int increments = 0;
   int toWriteR;
   int toWriteG;
