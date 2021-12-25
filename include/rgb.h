@@ -28,8 +28,8 @@ void fadeTo(int fromR, int fromG, int fromB, int toR, int toB, int toG, int inte
   while (increments <= steps) {
     unsigned long currMillis = millis();
     toWriteR = map(increments, 0, steps, fromR, toR);
-    toWriteG = map(increments, 0, steps, fromG, toB);
-    toWriteB = map(increments, 0, steps, fromB, toG);
+    toWriteG = map(increments, 0, steps, fromG, toG);
+    toWriteB = map(increments, 0, steps, fromB, toB);
     if (currMillis - prevMillis >= intrv) {
       prevMillis = currMillis;
       analogWrite(RED, toWriteR);

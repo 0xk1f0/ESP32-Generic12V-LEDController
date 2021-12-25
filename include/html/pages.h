@@ -162,7 +162,7 @@ const char updateIndex[] PROGMEM = R"=====(
         </style>
         <script>
             function notify_update() {
-                document.getElementById("update").innerHTML = "<p>Updating...</p>"; 
+                document.getElementById("update").innerHTML = "<p>Updating...</p>";
             }
         </script>
     </head>
@@ -273,6 +273,18 @@ const char settingsIndex[] PROGMEM = R"=====(
                 margin: 0 auto;
                 padding: 10px;
             }
+            #info {
+                margin: 0 auto;
+                padding: 0;
+                list-style-type: none;
+                border: solid white;
+                border-radius: 15px;
+                margin-bottom: 20px;
+                width: max-content;
+            }
+            #info li {
+                border: none;
+            }
             @media (pointer:none), (pointer:coarse) {
                 p, h1, label, li, a {
                     font-size: 70px;
@@ -289,7 +301,7 @@ const char settingsIndex[] PROGMEM = R"=====(
     <body>
         <section id="mainContainer">
             <h1>Settings</h1>
-            %SETTINGSINPUT%
+            %SETTINGS%
             <ul style="list-style-type:none">
                 <li>
                     <a href="/update">OTA-Update</a>

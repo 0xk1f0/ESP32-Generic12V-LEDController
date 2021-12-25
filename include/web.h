@@ -22,8 +22,14 @@ String liveVals(const String& var){
 }
 
 String settingsVals(const String& var){
-  if(var == "SETTINGSINPUT"){
+  if(var == "SETTINGS"){
     String interactive = "";
+    interactive += "<ul id=\"info\">";
+    interactive += "<li>Hostame: <span style=\"font-style:italic\">" + String(WiFi.getHostname()) + "</span></li>";
+    interactive += "<li>WiFi SSID: <span style=\"font-style:italic\">" + String(WiFi.SSID()) + "</span></li>";
+    interactive += "<li>Connection Status: <span style=\"font-style:italic\">" + String(WiFi.isConnected()) + "</span></li>";
+    interactive += "<li>Signal Strength: <span style=\"font-style:italic\">" + String(WiFi.RSSI()) + "dBm</span></li>";
+    interactive += "</ul>";
     return interactive;
   }
   return String();
@@ -62,20 +68,18 @@ void handleDoUpdate(AsyncWebServerRequest *request, const String& filename, size
   if (!index){
     size_t content_len;  
     content_len = request->contentLength();
-    // check file names for type
     int cmd = (filename.indexOf(F(".spiffs.bin")) > -1 ) ? U_SPIFFS : U_FLASH;
     if (cmd == U_FLASH && !(filename.indexOf(F(".bin")) > -1) ) return; // wrong image for ESP32
     if (!Update.begin(UPDATE_SIZE_UNKNOWN, cmd)) {
       Update.printError(Serial);
     }
   }
-
   if (Update.write(data, len) == len) {
-    Serial.println(Update.progress() / 10000 );
+    int progress = Update.progress() / 10000;
+    Serial.println(progress);
   } else {
     Update.printError(Serial);
   }
-
   if (final) {    
     if (!Update.end(true)){
       Update.printError(Serial);
