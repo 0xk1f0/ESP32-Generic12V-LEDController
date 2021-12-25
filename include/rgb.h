@@ -25,7 +25,7 @@ void turnOn() {
   int toWriteB;
   const long intrv = 10;
   unsigned long prevMillis = 0;
-  while (increments < 100) {
+  while (increments < 50) {
     unsigned long currMillis = millis();
     toWriteR = map(increments, 0, 50, 0, lastColorR);
     toWriteG = map(increments, 0, 50, 0, lastColorG);
@@ -63,12 +63,28 @@ void turnOff() {
 }
 
 void writeToStrip(int r,int g,int b, String state) {
-  lastColorR = r;
-  lastColorG = g;
-  lastColorB = b;
   if (state == "LED on") {
-    analogWrite(RED, r);
-    analogWrite(GREEN, g);
-    analogWrite(BLUE, b);
+    int increments = 0;
+    int toWriteR;
+    int toWriteG;
+    int toWriteB;
+    const long intrv = 10;
+    unsigned long prevMillis = 0;
+    while (increments < 30) {
+      unsigned long currMillis = millis();
+      toWriteR = map(increments, 0, 30, lastColorR, r);
+      toWriteG = map(increments, 0, 30, lastColorG, g);
+      toWriteB = map(increments, 0, 30, lastColorB, b);
+      if (currMillis - prevMillis >= intrv) {
+        prevMillis = currMillis;
+        analogWrite(RED, toWriteR);
+        analogWrite(GREEN, toWriteG);
+        analogWrite(BLUE, toWriteB);
+        increments += 1;
+      }
+    }
+    lastColorR = r;
+    lastColorG = g;
+    lastColorB = b;
   }
 }
