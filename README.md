@@ -13,7 +13,7 @@ Control Generic 12V Infrared LED-Strips with an ESP32
 
 ## Updating via OTA-Webpage
 
-1. Go to "http://[ESP32-IP]/update"
+1. Navigate to Settings->OTA-Update or go to "http://[ESP32-IP]/update"
 2. Click on the file input and select your updated binary file
 3. Click "Start Update!" and wait (don't close the page!)
 4. If the update was successful, you will be redirected automatically
@@ -29,3 +29,5 @@ Control Generic 12V Infrared LED-Strips with an ESP32
 - Color Wheel
 - Effects
 - Prettier Web-Interface
+- JSON-API
+- WLED-App Compatibility
