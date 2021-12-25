@@ -174,14 +174,21 @@ const char updateDoneIndex[] PROGMEM = R"=====(
             }
         </style>
         <script>
+            let counter = 4;
             setTimeout(refresh, 5000);
+            var upInt = setInterval(updateNumber, 1000);
             function refresh() {
+                clearInterval(upInt);
                 window.location.replace("/");
+            }
+            function updateNumber() {
+                document.getElementById("updateText").innerHTML = "Update done! Refreshing in " + counter + " ..."
+                counter--;
             }
         </script>
     </head>
     <body>
-        <p>Update done! Refreshing in 5 seconds...</p>
+        <p id="updateText">Update done! Refreshing in 5 seconds...</p>
     </body>
 </html>
 )=====";

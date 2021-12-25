@@ -18,18 +18,18 @@ void initPins() {
   analogWrite(BLUE, 0);
 }
 
-void turnOn() {
+void fadeTo(int fromR, int fromG, int fromB, int toR, int toB, int toG, int interval, int steps) {
   int increments = 0;
   int toWriteR;
   int toWriteG;
   int toWriteB;
-  const long intrv = 10;
+  const long intrv = interval;
   unsigned long prevMillis = 0;
-  while (increments < 50) {
+  while (increments <= steps) {
     unsigned long currMillis = millis();
-    toWriteR = map(increments, 0, 50, 0, lastColorR);
-    toWriteG = map(increments, 0, 50, 0, lastColorG);
-    toWriteB = map(increments, 0, 50, 0, lastColorB);
+    toWriteR = map(increments, 0, steps, fromR, toR);
+    toWriteG = map(increments, 0, steps, fromG, toB);
+    toWriteB = map(increments, 0, steps, fromB, toG);
     if (currMillis - prevMillis >= intrv) {
       prevMillis = currMillis;
       analogWrite(RED, toWriteR);
@@ -40,51 +40,19 @@ void turnOn() {
   }
 }
 
+void turnOn() {
+  fadeTo(0, 0, 0, lastColorR, lastColorG, lastColorB, 10, 50);
+}
+
 void turnOff() {
-  int increments = 50;
-  int toWriteR;
-  int toWriteG;
-  int toWriteB;
-  const long intrv = 10;
-  unsigned long prevMillis = 0;
-  while (increments > -1) {
-    toWriteR = map(increments, 0, 50, 0, lastColorR);
-    toWriteG = map(increments, 0, 50, 0, lastColorG);
-    toWriteB = map(increments, 0, 50, 0, lastColorB);
-    unsigned long currMillis = millis();
-    if (currMillis - prevMillis >= intrv) {
-      prevMillis = currMillis;
-      analogWrite(RED, toWriteR);
-      analogWrite(GREEN, toWriteG);
-      analogWrite(BLUE, toWriteB);
-      increments -= 1;
-    }
-  }
+  fadeTo(lastColorR, lastColorG, lastColorB, -1, -1, -1, 10, 50);
 }
 
 void writeToStrip(int r,int g,int b, String state) {
   if (state == "LED on") {
-    int increments = 0;
-    int toWriteR;
-    int toWriteG;
-    int toWriteB;
-    const long intrv = 10;
-    unsigned long prevMillis = 0;
-    while (increments < 30) {
-      unsigned long currMillis = millis();
-      toWriteR = map(increments, 0, 30, lastColorR, r);
-      toWriteG = map(increments, 0, 30, lastColorG, g);
-      toWriteB = map(increments, 0, 30, lastColorB, b);
-      if (currMillis - prevMillis >= intrv) {
-        prevMillis = currMillis;
-        analogWrite(RED, toWriteR);
-        analogWrite(GREEN, toWriteG);
-        analogWrite(BLUE, toWriteB);
-        increments += 1;
-      }
-    }
-    lastColorR = r;
-    lastColorG = g;
-    lastColorB = b;
+    fadeTo(lastColorR, lastColorG, lastColorB, r, g, b, 10, 50);
   }
+  lastColorR = r;
+  lastColorG = g;
+  lastColorB = b;
 }
