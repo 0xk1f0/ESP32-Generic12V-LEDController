@@ -3,7 +3,7 @@
 #include <WiFiClient.h>
 #include <ESPAsyncWebServer.h>
 #include <Update.h>
-#include <pages.h>
+#include <html/pages.h>
 #include <rgb.h>
 
 AsyncWebServer server(80);
@@ -16,6 +16,14 @@ String liveVals(const String& var){
     interactive += "<label>GREEN</label><br><input type=\"range\" onchange=\"sendColor()\" oninput=\"updateColor()\" value=" + String(lastColorG) + " min=0 max=255 id=\"colorInputG\"></input><br>";
     interactive += "<label>BLUE</label><br><input type=\"range\" onchange=\"sendColor()\" oninput=\"updateColor()\" value=" + String(lastColorB) + " min=0 max=255 id=\"colorInputB\"></input><br>";
     interactive += "<button id=\"onoff\" onclick=\"changestatus()\">" + ledStatus + "</button><br>";
+    return interactive;
+  }
+  return String();
+}
+
+String settingsVals(const String& var){
+  if(var == "SETTINGSINPUT"){
+    String interactive = "";
     return interactive;
   }
   return String();
@@ -109,11 +117,14 @@ void initWeb() {
     });
     server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(200, "text/html", updateIndex);
-        });
+    });
     server.on("/doUpdate", HTTP_POST,
         [](AsyncWebServerRequest *request) {},
         [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data, size_t len, bool final) {
         handleDoUpdate(request, filename, index, data, len, final);}
     );
+    server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send_P(200, "text/html", settingsIndex, settingsVals);
+    });
     server.begin();
 }

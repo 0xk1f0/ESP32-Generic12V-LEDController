@@ -12,6 +12,10 @@ const char ledIndex[] PROGMEM = R"=====(
                 color: white;
                 font-size: 40px;
             }
+            a {
+                text-decoration: none;
+                color: white;
+            }
             button {
                 background-color: black;
                 color: white;
@@ -45,8 +49,11 @@ const char ledIndex[] PROGMEM = R"=====(
     </head>
         <body>
             <section id="mainContainer">
-            <h1>LED CONTROL</h1>
-            %USERINPUT%
+                <h1>LED CONTROL</h1>
+                %USERINPUT%
+                <button id="settingsButton">
+                    <a href="/settings">Settings</a>
+                </button>
             </section>
             <script>
             function changestatus() {
@@ -105,6 +112,10 @@ const char updateIndex[] PROGMEM = R"=====(
                 color: white;
                 font-size: 40px;
             }
+            a {
+                text-decoration: none;
+                color: white;
+            }
             button {
                 background-color: black;
                 color: white;
@@ -126,12 +137,26 @@ const char updateIndex[] PROGMEM = R"=====(
                 margin: 0 auto;
                 padding: 10px;
             }
+            #submitButton {
+                background-color: black;
+                color: white;
+                border: solid white;
+                margin: 10px;
+                font-size: 20px;
+                border-radius: 15px;
+            }
             @media (pointer:none), (pointer:coarse) {
                 p, h1, label {
                     font-size: 70px;
                 }
-                button, input {
+                button {
                     font-size: 70px;
+                }
+                input {
+                    font-size: 30px;
+                }
+                #submitButton {
+                    font-size: 40px;
                 }
             }
         </style>
@@ -147,7 +172,7 @@ const char updateIndex[] PROGMEM = R"=====(
             <p>Only *.bin files will work!</p>
             <form method='POST' action='/doUpdate' enctype='multipart/form-data' target='_self' onsubmit='notify_update()'>
                 <input type='file' name='update' accept=".bin" required><br>
-                <input type='submit' value='Start Update!'>
+                <input id="submitButton" type='submit' value='Start Update!'>
             </form>
             <div id="update"></div>
         </section>
@@ -166,6 +191,10 @@ const char updateDoneIndex[] PROGMEM = R"=====(
             p, h1, label {
                 color: white;
                 font-size: 40px;
+            }
+            a {
+                text-decoration: none;
+                color: white;
             }
             @media (pointer:none), (pointer:coarse) {
                 p, h1, label {
@@ -188,7 +217,85 @@ const char updateDoneIndex[] PROGMEM = R"=====(
         </script>
     </head>
     <body>
-        <p id="updateText">Update done! Refreshing in 5 seconds...</p>
+        <p id="updateText">Update done! Refreshing in 5 ...</p>
+    </body>
+</html>
+)=====";
+const char settingsIndex[] PROGMEM = R"=====(
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            * {
+                background-color: black;
+                font-family: Arial, Helvetica, sans-serif
+            }
+            p, h1, label {
+                color: white;
+                font-size: 40px;
+            }
+            ul {
+                margin: 0;
+                padding: 0;
+            }
+            li {
+                color: white;
+                font-size: 40px;
+                border: solid white;
+                border-radius: 10px;
+                padding: 5px;
+                width: max-content;
+                margin: 0 auto;
+            }
+            button {
+                background-color: black;
+                color: white;
+                border: solid white;
+                margin: 10px;
+                font-size: 40px;
+                border-radius: 15px;
+            }
+            input {
+                color: white;
+                margin: 10px;
+                font-size: 20px;
+                border-radius: 15px;
+            }
+            a {
+                text-decoration: none;
+                color: white;
+                font-size: 40px;
+            }
+            #mainContainer {
+                border: solid white;
+                border-width: 10px;
+                text-align: center;
+                margin: 0 auto;
+                padding: 10px;
+            }
+            @media (pointer:none), (pointer:coarse) {
+                p, h1, label, li, a {
+                    font-size: 70px;
+                }
+                button, input {
+                    font-size: 70px;
+                }
+            }
+        </style>
+        <script>
+
+        </script>
+    </head>
+    <body>
+        <section id="mainContainer">
+            <h1>Settings</h1>
+            %SETTINGSINPUT%
+            <ul style="list-style-type:none">
+                <li>
+                    <a href="/update">OTA-Update</a>
+                </li>
+            </ul>
+        </section>
     </body>
 </html>
 )=====";
