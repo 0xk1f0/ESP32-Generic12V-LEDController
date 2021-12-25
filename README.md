@@ -21,7 +21,7 @@ Control Generic 12V Infrared LED-Strips with an ESP32
 ## Features
 
 - Web-Interface with Color Sliders and ON/OFF-Button
-- Fade in/out when toggling the LED's Power state
+- Fading effects on state change
 - OTA-Update functionality
 
 ## To Be Added
