@@ -29,6 +29,9 @@ String settingsVals(const String& var){
     interactive += "<li>WiFi SSID: <span style=\"font-style:italic\">" + String(WiFi.SSID()) + "</span></li>";
     interactive += "<li>Connection Status: <span style=\"font-style:italic\">" + String(WiFi.isConnected()) + "</span></li>";
     interactive += "<li>Signal Strength: <span style=\"font-style:italic\">" + String(WiFi.RSSI()) + "dBm</span></li>";
+    interactive += "<li>GPIO-RED: <span style=\"font-style:italic\">" + String(LED_PIN_RED) + "</span></li>";
+    interactive += "<li>GPIO-GREEN: <span style=\"font-style:italic\">" + String(LED_PIN_GREEN) + "</span></li>";
+    interactive += "<li>GPIO-BLUE: <span style=\"font-style:italic\">" + String(LED_PIN_BLUE) + "</span></li>";
     interactive += "</ul>";
     return interactive;
   }
