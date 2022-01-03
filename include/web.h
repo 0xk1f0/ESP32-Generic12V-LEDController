@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <ESPAsyncWebServer.h>
@@ -8,6 +9,8 @@
 
 AsyncWebServer server(80);
 String ledStatus = "LED off";
+StaticJsonDocument<250> jsonDocument;
+char buffer[250];
 
 String liveVals(const String& var){
   if(var == "USERINPUT"){
@@ -132,6 +135,31 @@ void initWeb() {
     );
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send_P(200, "text/html", settingsIndex, settingsVals);
+    });
+    server.on("/json", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        /*StaticJsonDocument<100> data;
+        if (ledStatus == "LED on") {
+          data["on"] = true;
+          data["bri"] = 125;
+        }
+        else if (ledStatus == "LED off") {
+          data["on"] = false;
+          data["bri"] = 0;
+        }
+        */
+        //serializeJson(data, response);
+        String response = "{\"state\":{\"on\":true,\"bri\":150,\"seg\":[{\"col\":[[255,68,255]]}]},\"info\":{\"ver\":\"0.13.0-b3\",\"leds\":{\"rgbw\":false},\"str\":false,\"name\":\"espLight\",\"wifi\":{\"bssid\":\"8C:3B:AD:BA:15:AA\",\"rssi\":-69,\"signal\":62,\"channel\":8},\"ip\":\"10.0.0.90\"}}"; 
+        request->send(200, "application/json", response);
+    });
+    server.on("/win", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        String response;
+        if (ledStatus == "LED on") {
+          response = "<vs><ac>125</ac><cl>255</cl><cl>68</cl><cl>255</cl><cs>0</cs><cs>0</cs><cs>0</cs><ns>0</ns><nr>1</nr><nl>0</nl><nf>1</nf><nd>60</nd><nt>0</nt><sq>20</sq><gn>10</gn><fx>66</fx><sx>37</sx><ix>62</ix><f1>0</f1><f2>0</f2><f3>0</f3><fp>35</fp><wv>-1</wv><ws>0</ws><ps>0</ps><cy>0</cy><ds>espLight</ds><ss>0</ss></vs>";
+        }
+        else if (ledStatus == "LED off") {
+          response = "<vs><ac>0</ac><cl>255</cl><cl>68</cl><cl>255</cl><cs>0</cs><cs>0</cs><cs>0</cs><ns>0</ns><nr>1</nr><nl>0</nl><nf>1</nf><nd>60</nd><nt>0</nt><sq>20</sq><gn>10</gn><fx>66</fx><sx>37</sx><ix>62</ix><f1>0</f1><f2>0</f2><f3>0</f3><fp>35</fp><wv>-1</wv><ws>0</ws><ps>0</ps><cy>0</cy><ds>espLight</ds><ss>0</ss></vs>";
+        }
+        request->send(200, "application/xml", response);
     });
     server.begin();
 }
