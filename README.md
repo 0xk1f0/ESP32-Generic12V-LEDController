@@ -23,8 +23,8 @@ Control Generic 12V Infrared LED-Strips with an ESP32
 - Web-Interface with Color Sliders and ON/OFF-Button
 - Fading effects on state change
 - OTA-Update functionality
-- Partial WLED-App Compatibility
-- JSON-API
+- Partial WLED-App Compatibility (ON/OFF and Status working in [The Official App](https://github.com/Aircoookie/WLED-App))
+- JSON-API ([More Info Here](https://kno.wled.ge/interfaces/json-api/))
 
 ## To Be Added
 
