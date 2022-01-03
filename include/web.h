@@ -1,16 +1,17 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
+#include <AsyncJson.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <ESPAsyncWebServer.h>
 #include <Update.h>
 #include <html/pages.h>
+#include <build_ver.h>
 #include <rgb.h>
 
 AsyncWebServer server(80);
 String ledStatus = "LED off";
-StaticJsonDocument<250> jsonDocument;
-char buffer[250];
+bool isOn = false;
 
 String liveVals(const String& var){
   if(var == "USERINPUT"){
@@ -42,13 +43,15 @@ String settingsVals(const String& var){
 }
 
 String handleLed() {
-    if (ledStatus == "LED on") {
-        turnOff();
-        ledStatus = "LED off";
+    if (isOn == true) {
+      turnOff();
+      ledStatus = "LED off";
+      isOn = false;
     } 
-    else if (ledStatus == "LED off") {
-        turnOn();
-        ledStatus = "LED on";
+    else {
+      turnOn();
+      ledStatus = "LED on";
+      isOn = true;
     }
     Serial.println(ledStatus);
     return ledStatus;
@@ -121,7 +124,7 @@ void initWeb() {
         Serial.println(inputR);
         Serial.println(inputG);
         Serial.println(inputB);
-        writeToStrip(inputR.toInt(), inputG.toInt(), inputB.toInt(), ledStatus);
+        writeToStrip(inputR.toInt(), inputG.toInt(), inputB.toInt(), isOn);
         Serial.println("COLOR CHANGED");
         request->send(200, "text/plain", "{\"r\":" + inputR + ", \"g\":" + inputG + ",\"b\":" + inputB + "}");
     });
@@ -136,30 +139,87 @@ void initWeb() {
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send_P(200, "text/html", settingsIndex, settingsVals);
     });
+    server.on("/win", HTTP_GET, [] (AsyncWebServerRequest *request) {
+      String inputR;
+      if (request->hasParam("T")) {
+        inputR = request->getParam("T")->value();
+        if (inputR == "0") {
+          turnOff();
+          isOn = false;
+        } else if (inputR == "1") {
+          turnOn();
+          isOn = true;
+        }
+      }
+      String response;
+      if (isOn == true) {
+        response = "<vs><ac>125</ac><cl>" + String(lastColorR) + "</cl><cl>" + String(lastColorG) + "</cl><cl>" + String(lastColorB) + "</cl><ds>" + String(WiFi.getHostname()) + "</ds><ss>0</ss></vs>";
+      }
+      else {
+        response = "<vs><ac>0</ac><cl>" + String(lastColorR) + "</cl><cl>" + String(lastColorG) + "</cl><cl>" + String(lastColorB) + "</cl><ds>" + String(WiFi.getHostname()) + "</ds><ss>0</ss></vs>";
+      }
+      request->send(200, "application/xml", response);
+    });
+    server.on("/win&T=2", HTTP_GET, [] (AsyncWebServerRequest *request) {
+      String response;
+      Serial.println("HTTP_GET power toggle!");
+      handleLed();
+      if (isOn == true) {
+        response = "<vs><ac>125</ac><cl>" + String(lastColorR) + "</cl><cl>" + String(lastColorG) + "</cl><cl>" + String(lastColorB) + "</cl><ds>" + String(WiFi.getHostname()) + "</ds><ss>0</ss></vs>";
+      }
+      else {
+        response = "<vs><ac>0</ac><cl>" + String(lastColorR) + "</cl><cl>" + String(lastColorG) + "</cl><cl>" + String(lastColorB) + "</cl><ds>" + String(WiFi.getHostname()) + "</ds><ss>0</ss></vs>";
+      }
+      request->send(200, "application/xml", response);
+    });
     server.on("/json", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        /*StaticJsonDocument<100> data;
-        if (ledStatus == "LED on") {
-          data["on"] = true;
-          data["bri"] = 125;
-        }
-        else if (ledStatus == "LED off") {
-          data["on"] = false;
-          data["bri"] = 0;
-        }
-        */
-        //serializeJson(data, response);
-        String response = "{\"state\":{\"on\":true,\"bri\":150,\"seg\":[{\"col\":[[255,68,255]]}]},\"info\":{\"ver\":\"0.13.0-b3\",\"leds\":{\"rgbw\":false},\"str\":false,\"name\":\"espLight\",\"wifi\":{\"bssid\":\"8C:3B:AD:BA:15:AA\",\"rssi\":-69,\"signal\":62,\"channel\":8},\"ip\":\"10.0.0.90\"}}"; 
+        Serial.println("JSON base fetched!");
+        String response;
+        response += "{\"state\":{";
+        response += "\"on\":" + String((isOn ? "true" : "false"));
+        response += ",\"bri\":125,\"seg\":[{\"col\":[";
+        response += "[" + String(lastColorR) + "," + String(lastColorG) + "," + String(lastColorB) + "]";
+        response += "]}]},\"info\":{\"ver\":\"" + build_ver + "\",\"leds\":{\"rgbw\":false},\"str\":false,";
+        response += "\"name\":\"" + String(WiFi.getHostname()) + "\",\"wifi\":{\"bssid\":\"" + String(WiFi.BSSIDstr()) + "\",\"rssi\":" + String(WiFi.RSSI()) + ",\"signal\":" + map(WiFi.RSSI(), -90, -30, 0, 100) + ",\"channel\":" + String(WiFi.channel()) + "},\"ip\":\"10.0.0.90\"}}"; 
         request->send(200, "application/json", response);
     });
-    server.on("/win", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        String response;
-        if (ledStatus == "LED on") {
-          response = "<vs><ac>125</ac><cl>255</cl><cl>68</cl><cl>255</cl><cs>0</cs><cs>0</cs><cs>0</cs><ns>0</ns><nr>1</nr><nl>0</nl><nf>1</nf><nd>60</nd><nt>0</nt><sq>20</sq><gn>10</gn><fx>66</fx><sx>37</sx><ix>62</ix><f1>0</f1><f2>0</f2><f3>0</f3><fp>35</fp><wv>-1</wv><ws>0</ws><ps>0</ps><cy>0</cy><ds>espLight</ds><ss>0</ss></vs>";
-        }
-        else if (ledStatus == "LED off") {
-          response = "<vs><ac>0</ac><cl>255</cl><cl>68</cl><cl>255</cl><cs>0</cs><cs>0</cs><cs>0</cs><ns>0</ns><nr>1</nr><nl>0</nl><nf>1</nf><nd>60</nd><nt>0</nt><sq>20</sq><gn>10</gn><fx>66</fx><sx>37</sx><ix>62</ix><f1>0</f1><f2>0</f2><f3>0</f3><fp>35</fp><wv>-1</wv><ws>0</ws><ps>0</ps><cy>0</cy><ds>espLight</ds><ss>0</ss></vs>";
-        }
-        request->send(200, "application/xml", response);
+    AsyncCallbackJsonWebHandler *handlerBase = new AsyncCallbackJsonWebHandler("/json/state", [](AsyncWebServerRequest *request, JsonVariant &json) {
+      Serial.println("JSON state triggered!");
+      StaticJsonDocument<200> data;
+      data = json.as<JsonObject>();
+      String response;
+      String isOnBool = data["on"];
+      if (isOnBool == "t") {
+        Serial.println("JSON power toggle!");
+        handleLed();
+        response += "{\"on\":" + String((isOn ? "true" : "false"));
+        response += ",\"bri\":125,\"seg\":[{\"col\":[";
+        response += "[" + String(lastColorR) + "," + String(lastColorG) + "," + String(lastColorB) + "]";
+        response += "]}]},\"info\":{\"ver\":\"" + build_ver + "\",\"leds\":{\"rgbw\":false},\"str\":false,";
+        response += "\"name\":\"" + String(WiFi.getHostname()) + "\",\"wifi\":{\"bssid\":\"" + String(WiFi.BSSIDstr()) + "\",\"rssi\":" + String(WiFi.RSSI()) + ",\"signal\":" + map(WiFi.RSSI(), -90, -30, 0, 100) + ",\"channel\":" + String(WiFi.channel()) + "},\"ip\":\"10.0.0.90\"}}"; 
+      }
+      request->send(200, "application/json", response);
     });
+    server.addHandler(handlerBase);
+    AsyncCallbackJsonWebHandler *handlerState = new AsyncCallbackJsonWebHandler("/json", [](AsyncWebServerRequest *request, JsonVariant &json) {
+      Serial.println("JSON base triggered!");
+      StaticJsonDocument<200> data;
+      data = json.as<JsonObject>();
+      String response;
+      String isOnBool = data["on"];
+      if (isOnBool == "t") {
+        Serial.println("JSON Turn-Off triggered!");
+        handleLed();
+        response += "{\"state\":{";
+        response += "\"on\":" + String((isOn ? "true" : "false"));
+        response += ",\"bri\":125,\"seg\":[{\"col\":[";
+        response += "[" + String(lastColorR) + "," + String(lastColorG) + "," + String(lastColorB) + "]";
+        response += "]}]},\"info\":{\"ver\":\"" + build_ver + "\",\"leds\":{\"rgbw\":false},\"str\":false,";
+        response += "\"name\":\"" + String(WiFi.getHostname()) + "\",\"wifi\":{\"bssid\":\"" + String(WiFi.BSSIDstr()) + "\",\"rssi\":" + String(WiFi.RSSI()) + ",\"signal\":" + map(WiFi.RSSI(), -90, -30, 0, 100) + ",\"channel\":" + String(WiFi.channel()) + "},\"ip\":\"10.0.0.90\"}}"; 
+      }
+      request->send(200, "application/json", response);
+      Serial.println(isOnBool);
+    });
+    server.addHandler(handlerState);
     server.begin();
 }

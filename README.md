@@ -23,11 +23,12 @@ Control Generic 12V Infrared LED-Strips with an ESP32
 - Web-Interface with Color Sliders and ON/OFF-Button
 - Fading effects on state change
 - OTA-Update functionality
+- Partial WLED-App Compatibility
+- JSON-API
 
 ## To Be Added
 
 - Color Wheel
 - Effects
 - Prettier Web-Interface
-- JSON-API
-- WLED-App Compatibility
+

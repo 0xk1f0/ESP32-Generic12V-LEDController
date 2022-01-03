@@ -48,8 +48,8 @@ void turnOff() {
   fadeTo(lastColorR, lastColorG, lastColorB, -1, -1, -1, 10, 50);
 }
 
-void writeToStrip(int r,int g,int b, String state) {
-  if (state == "LED on") {
+void writeToStrip(int r,int g,int b, bool isOn) {
+  if (isOn == true) {
     fadeTo(lastColorR, lastColorG, lastColorB, r, g, b, 10, 50);
   }
   lastColorR = r;
