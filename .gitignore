@@ -3,4 +3,5 @@
 .bin
 .elf
 .hex
-settings.h
+pinSettings.h
+wifiSettings.h

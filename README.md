@@ -5,9 +5,9 @@ Control Generic 12V Infrared LED-Strips with an ESP32
 
 1. Clone this Repository
 2. Open it in VSCode with PlatformIO installed
-3. Change WiFi-SSID, WiFi-Password and Hostname in `include/settings_template.h`
-4. If necessary, also change the Pin-Layout according to your wiring
-4. Rename settings_template.h to settings.h
+3. Change WiFi-SSID, WiFi-Password and Hostname in `include/settings/wifiSettings_template.h`
+4. Change the Pin-Layout according to your wiring in `include/settings/pinSettings_template.h`
+4. Rename wifiSettings_template.h to wifiSettings.h (same for pinSettings_template.h)
 5. Compile it
 6. Flash it
 
